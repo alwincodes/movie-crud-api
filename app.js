@@ -2,12 +2,12 @@ const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
 const dbUrl = "mongodb://localhost/moviebase";
-const hollywoodRouter = require("./routes/hollywood");
+const movieRouter = require("./routes/movies");
 //middleware
 app.use(express.json());
 
 //routes
-app.use('/api/hollywood',hollywoodRouter);
+app.use('/api/movies',movieRouter);
 
 //connecting with database
 mongoose.connect(dbUrl, {useNewUrlParser:true, useUnifiedTopology: true})

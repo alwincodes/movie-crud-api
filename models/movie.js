@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-
+//Schema for the movie table or collection
 const movieSchema = new mongoose.Schema({
     name:{
         type: String,
