@@ -10,7 +10,7 @@ router.get('/', async (req, res)=>{
 router.get('/:id', async (req, res)=>{
     let movieId = req.params.id;
     try{
-        const resultMovie = await MovieSchema.findById(movieId);
+        const resultMovie = await MovieSchema.findById(movieId );
         res.status(200).json(resultMovie);
     }catch(err){
         res.status(500).json({Status:"Something went wrong"});
