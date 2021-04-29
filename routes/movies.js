@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const MovieSchema = require('../models/movie');
+const auth = require('../middleware/authentication')
+
+
 
 router.get('/', async (req, res)=>{
     const allMovies = await MovieSchema.find();
@@ -17,6 +20,9 @@ router.get('/:id', async (req, res)=>{
     }
     
 });
+
+//private router below
+router.use(auth);
 
 router.post('/', async (req, res)=>{
     const data = req.body;
@@ -43,16 +49,8 @@ router.put('/:id', async (req, res)=>{
     let updateId = req.params.id;
     let data = req.body;
     let prevData = await MovieSchema.findById(updateId);
-    console.log(prevData)
     let updateData = {
-        name: data.name || prevData.name,
-        genre: data.genre || prevData.genre,
-        language: data.language || prevData.language,
-        runtime: data.runtime || prevData.runtime,
-        year: data.year || prevData.year,
-        cast: data.cast || prevData.cast,
-        description: data.description ||  prevData.description,
-        posterUrl: data.posterUrl || prevData.posterUrl
+       ...prevData, ...data
     };
     let query = {_id: updateId};
     try{
