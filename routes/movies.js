@@ -21,7 +21,7 @@ router.get('/:id', async (req, res)=>{
     
 });
 
-//private router below
+//private routes below authentication required
 router.use(auth);
 
 router.post('/', async (req, res)=>{
