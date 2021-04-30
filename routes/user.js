@@ -5,6 +5,19 @@ const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken")
 require("dotenv").config()
 
+//refresh token storage never use in prod use a db like redis
+const refreshTokens = []
+//routes
+router.post('/token', (req,res)=>{
+    const refreshToken = req.body.token;
+    if(refreshTokens.length < 1 || refreshToken === null) res.status(401).json({message:"unauthorised"});
+    if(!refreshTokens.includes(refreshToken))res.status(403).json({message:"Forbidden"});
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user)=>{
+        if(err)res.status(403).json({message:"invalid token"})
+        const accessToken = generateAccessToken({email:user.email, username:user.username});
+        res.status(200).json({accessToken: accessToken})
+    })
+})
 router.post('/signup', async (req, res)=>{
     let {username, email, password} = req.body;
     let user = await UserModel.findOne({email: email});
@@ -36,17 +49,21 @@ router.post('/login', async(req, res)=>{
     if(!passCompare){
         res.status(200).json({status: "Invalid Password!!"});
     }
-
-    console.log(process.env.ACCESS_TOKEN_SECRET) 
-    //jwt auth code
-    //signing email here
-    const accessToken = jwt.sign({email : user.email, username : user.username}, process.env.ACCESS_TOKEN_SECRET)
+    const accessToken = generateAccessToken({email : user.email, username : user.username});
+    const refreshToken = generateRefreshToken({email : user.email, username : user.username})
+    refreshTokens.push(refreshToken);
 
     //jwt above
-    res.status(200).json({message:"successfully logged in !!", accessToken: accessToken});
+    res.status(200).json({message:"successfully logged in !!", accessToken: accessToken, refreshToken: refreshToken});
 
 })
 
+const generateAccessToken = (user)=>{
+    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn : '30s'})
+} 
 
+const generateRefreshToken = (user)=>{
+    return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {expiresIn:"7d"})
+} 
 
 module.exports = router;
