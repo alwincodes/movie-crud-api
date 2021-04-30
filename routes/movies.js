@@ -4,8 +4,7 @@ const MovieSchema = require('../models/movie');
 const auth = require('../middleware/authentication')
 
 
-//private routes below authentication required
-router.use(auth);
+
 router.get('/', async (req, res)=>{
     const allMovies = await MovieSchema.find();
     res.status(200).json(allMovies);
@@ -22,7 +21,8 @@ router.get('/:id', async (req, res)=>{
     
 });
 
-
+//private routes below authentication required
+router.use(auth);
 
 router.post('/', async (req, res)=>{
     const data = req.body;
