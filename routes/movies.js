@@ -50,13 +50,21 @@ router.put('/:id', async (req, res)=>{
     let data = req.body;
     let prevData = await MovieSchema.findById(updateId);
     let updateData = {
-       ...prevData, ...data
+        name: data.name || prevData.name,
+        genre: data.genre || prevData.genre,
+        language: data.language || prevData.language,
+        runtime: data.runtime || prevData.runtime,
+        year: data.year || prevData.year,
+        cast: data.cast || prevData.cast,
+        description: data.description || prevData.description,
+        posterUrl: data.posterUrl || prevData.posterUrl,
     };
     let query = {_id: updateId};
     try{
         let updateStatus = await MovieSchema.updateOne(query, updateData);
         res.status(200).json({Status: "Updated"});
     }catch(err){
+        console.log(err);
         res.status(500).json({Status: "Can't Update"});
     }
 });

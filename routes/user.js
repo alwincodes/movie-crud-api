@@ -23,6 +23,7 @@ router.post('/signup', async (req, res)=>{
     let user = await UserModel.findOne({email: email});
     if(user){
         res.status(200).json({status:"Email already Taken!"});
+        return;
     }
     let hashedPassword = await bcrypt.hash(password,10);
     let newUser = new UserModel({
@@ -32,10 +33,10 @@ router.post('/signup', async (req, res)=>{
     });
     try{
         await newUser.save();
-        res.status(200).json({Status: "user Created"});
+        res.status(200).json({status: "user Created"});
     }catch(err){
         console.log(err.message);
-        res.status(500).json({Status: "Username taken"});
+        res.status(500).json({status: "Username taken"});
     }
 });
 
@@ -44,22 +45,24 @@ router.post('/login', async(req, res)=>{
     let user = await UserModel.findOne({email: email});
     if(!user){
         res.status(200).json({status:"no user exists!"});
+        return;
     }
     let passCompare = await bcrypt.compare(password, user.password);
     if(!passCompare){
         res.status(200).json({status: "Invalid Password!!"});
+        return;
     }
     const accessToken = generateAccessToken({email : user.email, username : user.username});
     const refreshToken = generateRefreshToken({email : user.email, username : user.username})
     refreshTokens.push(refreshToken);
 
     //jwt above
-    res.status(200).json({message:"successfully logged in !!", accessToken: accessToken, refreshToken: refreshToken});
+    res.status(200).json({status:"successfully logged in !!", accessToken: accessToken, refreshToken: refreshToken});
 
 })
 
 const generateAccessToken = (user)=>{
-    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn : '30s'})
+    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn : '1h'})
 } 
 
 const generateRefreshToken = (user)=>{
